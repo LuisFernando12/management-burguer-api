@@ -1,0 +1,116 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          Int                 @id @unique @default(autoincrement())
+  name        String              @unique
+  description String
+  price       Float
+  amount      Int
+  category    Category
+  suplier     String?
+  ingredients ProductIngredient[]
+  requests    ProductOnRequests[]
+}
+
+model Ingredient {
+  id              Int                 @id @unique @default(autoincrement())
+  name            String
+  type            Type
+  unitMeasurement String
+  products        ProductIngredient[]
+}
+
+model ProductIngredient {
+  product      Product    @relation(fields: [productId], references: [id])
+  productId    Int
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  ingredientId Int
+
+  @@id([productId, ingredientId])
+}
+
+model Request {
+  id        Int                 @id @unique @default(autoincrement())
+  createdAt DateTime            @default(now())
+  status    Status              @default(PENDING)
+  client    User                @relation(fields: [clientId], references: [id])
+  clientId  Int                 
+  products  ProductOnRequests[]
+}
+
+model ProductOnRequests {
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+  request   Request @relation(fields: [requestId], references: [id])
+  requestId Int
+
+  @@id([productId, requestId])
+}
+
+model User {
+  id             Int      @id @default(autoincrement())
+  name           String
+  documentNumber String   @unique
+  email          String   @unique
+  password       String
+  createdAt      DateTime @default(now())
+  updateAt       DateTime @updatedAt
+  active         Boolean  @default(true)
+  role           Role     @default(USER)
+  access_token   Token?
+  Request        Request[]
+}
+
+model Token {
+  id           Int    @id @default(autoincrement())
+  access_token String @unique
+  expireIn     Int
+  user         User   @relation(fields: [userId], references: [id])
+  userId       Int    @unique
+}
+
+enum Role {
+  USER
+  EMPLOYEE
+  MANANGER
+  ADMIN
+}
+
+enum Status {
+  PENDING
+  RECEIVED
+  IN_PREPARATION
+  READY
+  CANCELED
+}
+
+enum Category {
+  FOOD
+  DRINK
+  DESSSERT
+}
+
+enum Type {
+  MEAT
+  BREAD
+  SAUCE
+  VEGETABLE
+  DAIRY
+  FRUIT
+  CONDIMENT
+  OTHER
+  VEGETARIAN
+}
