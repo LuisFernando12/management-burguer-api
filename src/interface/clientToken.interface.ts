@@ -4,6 +4,3 @@ export interface IPayloadClientToken {
   username: string;
   role?: string;
 }
-export interface IClientToken {
-  token: string;
-}

@@ -1,13 +1,9 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { ApiResponseProperty } from '@nestjs/swagger';
 
 export class TokenDTO {
-  @IsString()
-  @IsNotEmpty()
+  @ApiResponseProperty()
   access_token: string;
-  @IsNumber()
-  @IsNotEmpty()
+  @ApiResponseProperty()
   expireIn: number;
-  @IsNumber()
-  @IsNotEmpty()
   employeeId: number;
 }

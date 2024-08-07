@@ -9,6 +9,3 @@ export interface ISaveToken {
   employeeId?: number;
   token?: string | null;
 }
-export interface IRefreshToken {
-  oldToken: string;
-}

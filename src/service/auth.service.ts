@@ -3,8 +3,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { TokenService } from './token.service';
 import * as bcrypt from 'bcrypt';
 import { TokenDTO } from 'src/dto/token.dto';
-import { ILogin } from 'src/interface/auth.interface';
-import { IRefreshToken } from 'src/interface/token.interface';
+import { LoginDTO } from 'src/dto/auth.dto';
+import { RefreshTokenDTO } from 'src/dto/refreshToken.dto';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +21,7 @@ export class AuthService {
   async login({
     documentNumber,
     password,
-  }: ILogin): Promise<Omit<TokenDTO, 'employeeId'>> {
+  }: LoginDTO): Promise<Omit<TokenDTO, 'employeeId'>> {
     const employee = await this.prismaService.employee.findFirst({
       where: { documentNumber },
     });
@@ -35,7 +35,7 @@ export class AuthService {
   }
   async refreashToken({
     oldToken,
-  }: IRefreshToken): Promise<Omit<TokenDTO, 'employeeId'>> {
+  }: RefreshTokenDTO): Promise<Omit<TokenDTO, 'employeeId'>> {
     return await this.tokenService.saveToken({ token: oldToken });
   }
 

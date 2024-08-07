@@ -9,16 +9,19 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { CreateIngredientDTO } from 'src/dto/ingredient.dto';
+import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { IngredientDTO } from 'src/dto/ingredient.dto';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { IngredientService } from 'src/service/ingredient.service';
 
 @Controller('/ingredient')
+@ApiTags('Ingredient')
 export class IngredientController {
   constructor(private readonly ingredientService: IngredientService) {}
   @Post('/')
   @UseGuards(AuthGuard)
-  async create(@Body() body: CreateIngredientDTO) {
+  @ApiCreatedResponse({ type: IngredientDTO })
+  async create(@Body() body: IngredientDTO): Promise<IngredientDTO> {
     if (body) {
       try {
         return await this.ingredientService.create(body);
@@ -30,7 +33,8 @@ export class IngredientController {
   }
   @Get('/')
   @UseGuards(AuthGuard)
-  async findAll() {
+  @ApiCreatedResponse({ type: [IngredientDTO] })
+  async findAll(): Promise<IngredientDTO[]> {
     try {
       return await this.ingredientService.find();
     } catch (error) {
@@ -38,7 +42,8 @@ export class IngredientController {
     }
   }
   @Get('/:id')
-  async findOne(@Param('id') id: number) {
+  @ApiCreatedResponse({ type: IngredientDTO })
+  async findOne(@Param('id') id: number): Promise<IngredientDTO> {
     if (id) {
       try {
         return await this.ingredientService.get(Number(id));
@@ -50,7 +55,11 @@ export class IngredientController {
   }
   @Put('/:id')
   @UseGuards(AuthGuard)
-  async update(@Param('id') id: number, @Body() body: CreateIngredientDTO) {
+  @ApiCreatedResponse({ type: IngredientDTO })
+  async update(
+    @Param('id') id: number,
+    @Body() body: IngredientDTO,
+  ): Promise<IngredientDTO> {
     if (body && id) {
       try {
         return await this.ingredientService.update(body, Number(id));

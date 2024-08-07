@@ -1,31 +1,37 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import { CreateRequestDTO, RequestDTO } from 'src/dto/request.dto';
+import { RequestDTO, ResponseRequestDTO } from 'src/dto/request.dto';
 
 @Injectable()
 export class RequestService {
   constructor(private readonly prismaService: PrismaService) {}
-  async create(request: CreateRequestDTO): Promise<any> {
+  async create(request: RequestDTO): Promise<string> {
     request['status'] = 'PENDING';
     const { productIds, ...data } = request;
     try {
-      const requestDB = await this.prismaService.request.create({
-        data: data,
-      });
-      productIds.forEach(async (productId) => {
-        await this.prismaService.productOnRequests.create({
-          data: { productId: productId, requestId: requestDB.id },
+      await this.prismaService.$transaction(async (trx) => {
+        const requestDB = await trx.request.create({
+          data: data,
         });
+        for (const productId of productIds) {
+          await trx.productOnRequests.create({
+            data: { productId: productId, requestId: requestDB.id },
+          });
+        }
       });
-      return { ...requestDB, productIds };
+      return 'Request received';
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
-  async find(): Promise<RequestDTO[]> {
+  async find(): Promise<ResponseRequestDTO[]> {
     try {
       const requestDB = await this.prismaService.request.findMany({
-        include: { products: { include: { product: true } } },
+        include: {
+          products: { include: { product: true } },
+          employee: true,
+          client: true,
+        },
       });
       return requestDB.map((request) => {
         const { products, ...requestDB } = request;
@@ -38,7 +44,7 @@ export class RequestService {
       throw new InternalServerErrorException(error);
     }
   }
-  async findByClient(clientId: number): Promise<RequestDTO[]> {
+  async findByClient(clientId: number): Promise<ResponseRequestDTO[]> {
     try {
       const requestDB = await this.prismaService.request.findMany({
         include: { products: { include: { product: true } } },
@@ -55,7 +61,7 @@ export class RequestService {
       throw new InternalServerErrorException(error);
     }
   }
-  async get(id: number): Promise<RequestDTO> {
+  async get(id: number): Promise<ResponseRequestDTO> {
     try {
       const requestDB = await this.prismaService.request.findUnique({
         where: { id: id },
@@ -68,9 +74,9 @@ export class RequestService {
     }
   }
   async update(
-    request: Partial<Omit<RequestDTO, 'products'>>,
+    request: Partial<Omit<RequestDTO, 'productIds'>>,
     id: number,
-  ): Promise<RequestDTO> {
+  ): Promise<ResponseRequestDTO> {
     try {
       const requestDB = await this.prismaService.request.update({
         data: request,

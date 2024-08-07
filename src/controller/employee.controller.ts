@@ -10,10 +10,12 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { Employee } from 'src/dto/employee.dto';
+import { EmployeeDTO } from 'src/dto/employee.dto';
 import EmployeeService from 'src/service/employee.service';
 import * as bcrypt from 'bcrypt';
+import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 @Controller('/employee')
+@ApiTags('Employee')
 export default class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 
@@ -22,7 +24,8 @@ export default class EmployeeController {
     return await bcrypt.hash(password, salt);
   }
   @Post('/')
-  async createmployee(@Body() employee: Employee): Promise<Employee> {
+  @ApiCreatedResponse({ type: EmployeeDTO })
+  async createmployee(@Body() employee: EmployeeDTO): Promise<EmployeeDTO> {
     if (!employee) {
       throw new BadRequestException();
     }
@@ -51,7 +54,8 @@ export default class EmployeeController {
   //   }
 
   @Get('/:id')
-  async getEmployeeById(@Param('id') id: number): Promise<Employee | null> {
+  @ApiCreatedResponse({ type: EmployeeDTO })
+  async getEmployeeById(@Param('id') id: number): Promise<EmployeeDTO> {
     if (!id) {
       throw new BadRequestException();
     }
@@ -66,7 +70,8 @@ export default class EmployeeController {
     }
   }
   @Get()
-  async findAllEmployees(): Promise<Employee[]> {
+  @ApiCreatedResponse({ type: [EmployeeDTO] })
+  async findAllEmployees(): Promise<EmployeeDTO[]> {
     try {
       return await this.employeeService.findEmployee();
     } catch (e) {
@@ -74,10 +79,11 @@ export default class EmployeeController {
     }
   }
   @Put('/:id')
+  @ApiCreatedResponse({ type: EmployeeDTO })
   async updateEmployee(
     @Param('id') id: number,
-    @Body() employee: Employee,
-  ): Promise<Employee> {
+    @Body() employee: EmployeeDTO,
+  ): Promise<EmployeeDTO> {
     if (!employee || !id) {
       throw new BadRequestException();
     }

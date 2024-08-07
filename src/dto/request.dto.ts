@@ -1,20 +1,28 @@
 import { $Enums } from '@prisma/client';
 import { IsNotEmpty, IsNumber } from 'class-validator';
-import { CreateProductDTO } from './product.dto';
-export class CreateRequestDTO {
-  @IsNotEmpty()
+import { ProductDTO } from './product.dto';
+import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
+export class RequestDTO {
   @IsNumber()
+  @ApiProperty()
   clientId: number;
   @IsNumber()
+  @ApiProperty()
   employeeId?: number;
   @IsNotEmpty()
   @IsNumber()
+  @ApiProperty({ type: [Number] })
   productIds: [number];
 }
-export class RequestDTO {
+export class ResponseRequestDTO {
+  @ApiResponseProperty()
   createdAt: Date;
+  @ApiResponseProperty()
   status: $Enums.Status;
+  @ApiResponseProperty()
   clientId: number;
+  @ApiResponseProperty()
   employeeId?: number;
-  products: Omit<CreateProductDTO, 'ingredientIds'>[];
+  @ApiResponseProperty()
+  products: Omit<ProductDTO, 'ingredientIds'>[];
 }

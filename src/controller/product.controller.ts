@@ -10,19 +10,22 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
+import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import {
-  CreateProductDTO as CreateProductDTO,
-  ProductDTO,
+  ProductDTO as ProductDTO,
+  ResponseProductDTO,
 } from 'src/dto/product.dto';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { ProductService } from 'src/service/product.service';
 
 @Controller('/product')
+@ApiTags('Product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
   @Post('/')
   @UseGuards(AuthGuard)
-  async create(@Body() body: CreateProductDTO): Promise<CreateProductDTO> {
+  @ApiCreatedResponse({ type: ResponseProductDTO })
+  async create(@Body() body: ProductDTO): Promise<ProductDTO> {
     if (body) {
       try {
         return await this.productService.create(body);
@@ -33,7 +36,8 @@ export class ProductController {
     throw new BadRequestException();
   }
   @Get('/')
-  async findAll(): Promise<ProductDTO[]> {
+  @ApiCreatedResponse({ type: [ResponseProductDTO] })
+  async findAll(): Promise<ResponseProductDTO[]> {
     try {
       return await this.productService.find();
     } catch (error) {
@@ -41,7 +45,8 @@ export class ProductController {
     }
   }
   @Get('/:id')
-  async findOne(@Param('id') id: number): Promise<ProductDTO> {
+  @ApiCreatedResponse({ type: ResponseProductDTO })
+  async findOne(@Param('id') id: number): Promise<ResponseProductDTO> {
     if (id) {
       try {
         return await this.productService.get(Number(id));
@@ -53,10 +58,11 @@ export class ProductController {
   }
   @Put('/:id')
   @UseGuards(AuthGuard)
+  @ApiCreatedResponse({ type: ResponseProductDTO })
   async update(
-    @Body() body: CreateProductDTO,
+    @Body() body: ProductDTO,
     @Param('id') id: number,
-  ): Promise<ProductDTO> {
+  ): Promise<ResponseProductDTO> {
     if (body && id) {
       try {
         return await this.productService.update(body, Number(id));
@@ -68,6 +74,7 @@ export class ProductController {
   }
   @Delete('/:id')
   @UseGuards(AuthGuard)
+  @ApiCreatedResponse({ type: String })
   async delete(@Param('id') id: number): Promise<string> {
     if (id) {
       try {

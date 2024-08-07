@@ -10,16 +10,19 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { CreateRequestDTO, RequestDTO } from 'src/dto/request.dto';
+import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { RequestDTO, ResponseRequestDTO } from 'src/dto/request.dto';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { RequestService } from 'src/service/request.service';
 
 @Controller('/request')
+@ApiTags('Request')
 export class RequestController {
   constructor(private readonly requestService: RequestService) {}
   @Post('/')
   @UseGuards(AuthGuard)
-  async create(@Body() request: CreateRequestDTO): Promise<CreateRequestDTO> {
+  @ApiCreatedResponse({ type: String })
+  async create(@Body() request: RequestDTO): Promise<string> {
     if (request) {
       return await this.requestService.create(request);
     } else {
@@ -28,14 +31,16 @@ export class RequestController {
   }
   @Get('/')
   @UseGuards(AuthGuard)
-  async findAll(): Promise<RequestDTO[]> {
+  @ApiCreatedResponse({ type: [ResponseRequestDTO] })
+  async findAll(): Promise<ResponseRequestDTO[]> {
     return await this.requestService.find();
   }
   @Get('client/:clientId')
   @UseGuards(AuthGuard)
+  @ApiCreatedResponse({ type: [ResponseRequestDTO] })
   async findAllByClient(
     @Param('clientId') clientId: number,
-  ): Promise<RequestDTO[]> {
+  ): Promise<ResponseRequestDTO[]> {
     if (clientId) {
       try {
         return await this.requestService.findByClient(Number(clientId));
@@ -47,7 +52,8 @@ export class RequestController {
   }
   @Get('/:id')
   @UseGuards(AuthGuard)
-  async getRequest(@Param('id') id: number): Promise<RequestDTO> {
+  @ApiCreatedResponse({ type: ResponseRequestDTO })
+  async getRequest(@Param('id') id: number): Promise<ResponseRequestDTO> {
     if (id) {
       try {
         return await this.requestService.get(Number(id));
@@ -58,10 +64,11 @@ export class RequestController {
     throw new BadRequestException();
   }
   @Put('/:id')
+  @ApiCreatedResponse({ type: ResponseRequestDTO })
   async update(
     @Body() request: Partial<RequestDTO>,
     @Param('id') id: number,
-  ): Promise<RequestDTO> {
+  ): Promise<ResponseRequestDTO> {
     if (id && request) {
       return await this.requestService.update(request, Number(id));
     }

@@ -2,7 +2,7 @@ import { RedisService } from './redis.service';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { Prisma } from '@prisma/client';
-import { CreateProductDTO, ProductDTO } from 'src/dto/product.dto';
+import { ProductDTO, ResponseProductDTO } from 'src/dto/product.dto';
 
 type ProductCreateInput = Prisma.ProductCreateInput & {
   ingredientIds: [number];
@@ -14,7 +14,7 @@ export class ProductService {
     private readonly redisService: RedisService,
   ) {}
 
-  async create(body: ProductCreateInput): Promise<CreateProductDTO> {
+  async create(body: ProductCreateInput): Promise<ProductDTO> {
     try {
       const { ingredientIds, ...data } = body;
       const productDB = await this.prismaService.product.create({ data });
@@ -32,7 +32,7 @@ export class ProductService {
       throw new InternalServerErrorException(error);
     }
   }
-  async find(): Promise<ProductDTO[]> {
+  async find(): Promise<ResponseProductDTO[]> {
     try {
       const productCache = await this.redisService.get('products');
       if (!productCache) {
@@ -73,7 +73,7 @@ export class ProductService {
       return error;
     }
   }
-  async get(id: number): Promise<ProductDTO> {
+  async get(id: number): Promise<ResponseProductDTO> {
     try {
       const productDB = await this.prismaService.product.findUnique({
         where: { id },
@@ -96,7 +96,7 @@ export class ProductService {
   async update(
     body: Prisma.ProductUpdateInput,
     id: number,
-  ): Promise<ProductDTO> {
+  ): Promise<ResponseProductDTO> {
     try {
       const productDB = await this.prismaService.product.update({
         data: body,
