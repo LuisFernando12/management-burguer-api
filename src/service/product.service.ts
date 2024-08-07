@@ -1,3 +1,4 @@
+import { RedisService } from './redis.service';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { Prisma } from '@prisma/client';
@@ -8,17 +9,19 @@ type ProductCreateInput = Prisma.ProductCreateInput & {
 };
 @Injectable()
 export class ProductService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly redisService: RedisService,
+  ) {}
 
   async create(body: ProductCreateInput): Promise<CreateProductDTO> {
     try {
       const { ingredientIds, ...data } = body;
       const productDB = await this.prismaService.product.create({ data });
-
-      ingredientIds.forEach(async (item) => {
+      ingredientIds.forEach(async (ingredientId) => {
         try {
           await this.prismaService.productIngredient.create({
-            data: { productId: productDB.id, ingredientId: item },
+            data: { productId: productDB.id, ingredientId: ingredientId },
           });
         } catch (error) {
           throw new InternalServerErrorException(error);
@@ -31,16 +34,35 @@ export class ProductService {
   }
   async find(): Promise<ProductDTO[]> {
     try {
-      const productDB = await this.prismaService.product.findMany({
-        include: {
-          ingredients: {
-            include: {
-              ingredient: true,
+      const productCache = await this.redisService.get('products');
+      if (!productCache) {
+        const productDB = await this.prismaService.product.findMany({
+          include: {
+            ingredients: {
+              include: {
+                ingredient: true,
+              },
             },
           },
-        },
-      });
-      return productDB.map((product) => {
+        });
+
+        await this.redisService.setex(
+          'products',
+          300,
+          JSON.stringify(productDB),
+        );
+        console.log('DataBase');
+
+        return productDB.map((product) => {
+          const { ingredients, ...productDB } = product;
+          return {
+            ...productDB,
+            ingredients: ingredients.map((ingredient) => ingredient.ingredient),
+          };
+        });
+      }
+      console.log('Cache');
+      return JSON.parse(productCache).map((product) => {
         const { ingredients, ...productDB } = product;
         return {
           ...productDB,
@@ -104,6 +126,8 @@ export class ProductService {
       if (productDeleted) {
         return 'ok';
       }
-    } catch (error) {}
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 }

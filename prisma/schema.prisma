@@ -27,7 +27,7 @@ model Product {
 
 model Ingredient {
   id              Int                 @id @unique @default(autoincrement())
-  name            String
+  name            String              @unique
   type            Type
   unitMeasurement String
   products        ProductIngredient[]
@@ -47,6 +47,8 @@ model Request {
   createdAt DateTime            @default(now())
   status    Status              @default(PENDING)
   client    User                @relation(fields: [clientId], references: [id])
+  employee    Employee?               @relation(fields: [employeeId], references: [id])
+  employeeId Int?
   clientId  Int                 
   products  ProductOnRequests[]
 }
@@ -69,8 +71,20 @@ model User {
   createdAt      DateTime @default(now())
   updateAt       DateTime @updatedAt
   active         Boolean  @default(true)
-  role           Role     @default(USER)
   access_token   Token?
+  Request        Request[]
+}
+model Employee {
+  id             Int      @id @default(autoincrement())
+  name           String
+  documentNumber String   @unique
+  email          String   @unique
+  password       String
+  createdAt      DateTime @default(now())
+  updateAt       DateTime @updatedAt
+  active         Boolean  @default(true)
+  role           Role     
+  access_token   EmployeeToken?
   Request        Request[]
 }
 
@@ -80,10 +94,17 @@ model Token {
   expireIn     Int
   user         User   @relation(fields: [userId], references: [id])
   userId       Int    @unique
+
+}
+model EmployeeToken {
+  id           Int    @id @default(autoincrement())
+  access_token String @unique
+  expireIn     Int
+  employee         Employee   @relation(fields: [employeeId], references: [id])
+  employeeId       Int    @unique
 }
 
 enum Role {
-  USER
   EMPLOYEE
   MANANGER
   ADMIN

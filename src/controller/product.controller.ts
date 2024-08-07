@@ -21,6 +21,7 @@ import { ProductService } from 'src/service/product.service';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
   @Post('/')
+  @UseGuards(AuthGuard)
   async create(@Body() body: CreateProductDTO): Promise<CreateProductDTO> {
     if (body) {
       try {
@@ -32,7 +33,6 @@ export class ProductController {
     throw new BadRequestException();
   }
   @Get('/')
-  @UseGuards(AuthGuard)
   async findAll(): Promise<ProductDTO[]> {
     try {
       return await this.productService.find();
@@ -41,7 +41,6 @@ export class ProductController {
     }
   }
   @Get('/:id')
-  @UseGuards(AuthGuard)
   async findOne(@Param('id') id: number): Promise<ProductDTO> {
     if (id) {
       try {

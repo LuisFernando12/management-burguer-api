@@ -4,6 +4,8 @@ import { ProductModule } from './product.module';
 import { IngredientModule } from './ingredient.module';
 import { ResquestModule } from './request.module';
 import { JwtModule } from '@nestjs/jwt';
+import { EmployeeModule } from './employee.module';
+import { AuthModule } from './auth.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { JwtModule } from '@nestjs/jwt';
     ProductModule,
     IngredientModule,
     ResquestModule,
+    EmployeeModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

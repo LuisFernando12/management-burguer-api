@@ -7,14 +7,17 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateIngredientDTO } from 'src/dto/ingredient.dto';
-import { IngredientService } from 'src/service/ingredinet.service';
+import { AuthGuard } from 'src/guard/auth.guard';
+import { IngredientService } from 'src/service/ingredient.service';
 
 @Controller('/ingredient')
 export class IngredientController {
   constructor(private readonly ingredientService: IngredientService) {}
   @Post('/')
+  @UseGuards(AuthGuard)
   async create(@Body() body: CreateIngredientDTO) {
     if (body) {
       try {
@@ -26,6 +29,7 @@ export class IngredientController {
     throw new BadRequestException();
   }
   @Get('/')
+  @UseGuards(AuthGuard)
   async findAll() {
     try {
       return await this.ingredientService.find();
@@ -45,6 +49,7 @@ export class IngredientController {
     throw new BadRequestException('missing ID');
   }
   @Put('/:id')
+  @UseGuards(AuthGuard)
   async update(@Param('id') id: number, @Body() body: CreateIngredientDTO) {
     if (body && id) {
       try {
