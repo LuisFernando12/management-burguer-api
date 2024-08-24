@@ -6,7 +6,7 @@ import { IngredientDTO } from 'src/dto/ingredient.dto';
 @Injectable()
 export class IngredientService {
   constructor(private readonly prismaService: PrismaService) {}
-  async create(body: Prisma.IngredientCreateInput): Promise<IngredientDTO> {
+  async create(body: IngredientDTO): Promise<IngredientDTO> {
     try {
       return await this.prismaService.ingredient.create({ data: body });
     } catch (error) {

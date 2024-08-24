@@ -16,16 +16,16 @@ export class AuthService {
     password: string,
     hash: string,
   ): Promise<boolean> {
-    return await bcrypt.compare(password, hash);
+    return password && hash && (await bcrypt.compare(password, hash));
   }
   async login({
     documentNumber,
     password,
   }: LoginDTO): Promise<Omit<TokenDTO, 'employeeId'>> {
-    const employee = await this.prismaService.employee.findFirst({
+    const employee = await this.prismaService.employee.findUnique({
       where: { documentNumber },
     });
-    const hash = employee.password;
+    const hash = employee?.password;
     if (!employee || !(await this.comparePassword(password, hash))) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -33,7 +33,7 @@ export class AuthService {
     const access_token = await this.tokenService.saveToken(payload);
     return access_token;
   }
-  async refreashToken({
+  async refreshToken({
     oldToken,
   }: RefreshTokenDTO): Promise<Omit<TokenDTO, 'employeeId'>> {
     return await this.tokenService.saveToken({ token: oldToken });

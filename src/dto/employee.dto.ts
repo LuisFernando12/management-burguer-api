@@ -1,8 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { $Enums } from '@prisma/client';
-import { IsBoolean, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmpty,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+} from 'class-validator';
 
 export class EmployeeDTO {
+  @IsNumber()
+  @IsEmpty()
+  id?: number;
   @IsNotEmpty()
   @IsString()
   @ApiProperty()

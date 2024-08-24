@@ -8,10 +8,10 @@ import {
   Post,
   UnauthorizedException,
 } from '@nestjs/common';
-import { LoginDTO } from 'src/dto/auth.dto';
-import { AuthService } from 'src/service/auth.service';
-import { RefreshTokenDTO } from 'src/dto/refreshToken.dto';
-import { TokenDTO } from 'src/dto/token.dto';
+import { LoginDTO } from '../dto/auth.dto';
+import { AuthService } from '../service/auth.service';
+import { RefreshTokenDTO } from '../dto/refreshToken.dto';
+import { TokenDTO } from '../dto/token.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -21,13 +21,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('/login')
   @ApiCreatedResponse({ type: TokenDTO })
-  async doLogin(
-    @Body() { documentNumber, password }: LoginDTO,
-  ): Promise<Omit<TokenDTO, 'employeeId'>> {
-    if (!documentNumber || !password) {
+  async doLogin(@Body() body: LoginDTO): Promise<Omit<TokenDTO, 'employeeId'>> {
+    if (!body.documentNumber || !body.password) {
       throw new UnauthorizedException('Invalid params');
     }
-    return await this.authService.login({ documentNumber, password });
+    return await this.authService.login(body);
   }
 
   @Post('/token/refresh-token')
@@ -38,7 +36,7 @@ export class AuthController {
     if (!oldToken) {
       throw new UnauthorizedException('Invalid old token');
     }
-    return await this.authService.refreashToken({ oldToken });
+    return await this.authService.refreshToken({ oldToken });
   }
 
   @Post('/token/client')
