@@ -14,11 +14,7 @@ export class IngredientService {
     }
   }
   async find(): Promise<IngredientDTO[]> {
-    try {
-      return await this.prismaService.ingredient.findMany();
-    } catch (error) {
-      throw new InternalServerErrorException(error);
-    }
+    return await this.prismaService.ingredient.findMany();
   }
   async get(id: number): Promise<IngredientDTO> {
     try {
