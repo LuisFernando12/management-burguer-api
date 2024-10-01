@@ -5,7 +5,7 @@ import { Prisma } from '@prisma/client';
 import { ProductDTO, ResponseProductDTO } from 'src/dto/product.dto';
 
 type ProductCreateInput = Prisma.ProductCreateInput & {
-  ingredientIds: [number];
+  ingredientIds: number[];
 };
 @Injectable()
 export class ProductService {
@@ -19,13 +19,9 @@ export class ProductService {
       const { ingredientIds, ...data } = body;
       const productDB = await this.prismaService.product.create({ data });
       ingredientIds.forEach(async (ingredientId) => {
-        try {
-          await this.prismaService.productIngredient.create({
-            data: { productId: productDB.id, ingredientId: ingredientId },
-          });
-        } catch (error) {
-          throw new InternalServerErrorException(error);
-        }
+        await this.prismaService.productIngredient.create({
+          data: { productId: productDB.id, ingredientId: ingredientId },
+        });
       });
       return { ...productDB, ingredientIds };
     } catch (error) {
@@ -70,7 +66,7 @@ export class ProductService {
         };
       });
     } catch (error) {
-      return error;
+      throw new InternalServerErrorException(error);
     }
   }
   async get(id: number): Promise<ResponseProductDTO> {
@@ -90,7 +86,7 @@ export class ProductService {
         ingredients: productDB.ingredients.map(({ ingredient }) => ingredient),
       };
     } catch (error) {
-      return error;
+      throw new InternalServerErrorException(error);
     }
   }
   async update(
@@ -115,17 +111,15 @@ export class ProductService {
         ingredients: ingredients.map(({ ingredient }) => ingredient),
       };
     } catch (error) {
-      return error;
+      throw new InternalServerErrorException(error);
     }
   }
   async delete(id: number): Promise<string> {
     try {
-      const productDeleted = this.prismaService.product.delete({
+      await this.prismaService.product.delete({
         where: { id },
       });
-      if (productDeleted) {
-        return 'ok';
-      }
+      return 'ok';
     } catch (error) {
       throw new InternalServerErrorException(error);
     }

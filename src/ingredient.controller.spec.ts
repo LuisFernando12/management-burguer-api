@@ -54,15 +54,6 @@ describe('IngredientController', () => {
         inputCreateIngredient,
       );
     });
-    it(' should return error message', async () => {
-      try {
-        await ingredientController.createIngredient(null);
-        fail('Expected error message');
-      } catch (err) {
-        expect(err).toBeInstanceOf(BadRequestException);
-        expect(err.status).toBe(400);
-      }
-    });
   });
   describe('findAllingredients', () => {
     it('should be defined', () => {

@@ -11,9 +11,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
-import { RequestDTO, ResponseRequestDTO } from 'src/dto/request.dto';
-import { AuthGuard } from 'src/guard/auth.guard';
-import { RequestService } from 'src/service/request.service';
+import { RequestDTO, ResponseRequestDTO } from '../dto/request.dto';
+import { AuthGuard } from '../guard/auth.guard';
+import { RequestService } from '../service/request.service';
 
 @Controller('/request')
 @ApiTags('Request')
@@ -23,11 +23,7 @@ export class RequestController {
   @UseGuards(AuthGuard)
   @ApiCreatedResponse({ type: String })
   async create(@Body() request: RequestDTO): Promise<string> {
-    if (request) {
-      return await this.requestService.create(request);
-    } else {
-      throw new BadRequestException();
-    }
+    return await this.requestService.create(request);
   }
   @Get('/')
   @UseGuards(AuthGuard)
@@ -69,7 +65,7 @@ export class RequestController {
     @Body() request: Partial<RequestDTO>,
     @Param('id') id: number,
   ): Promise<ResponseRequestDTO> {
-    if (id && request) {
+    if (id) {
       return await this.requestService.update(request, Number(id));
     }
     throw new BadRequestException();

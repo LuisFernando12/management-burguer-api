@@ -21,10 +21,7 @@ export class IngredientController {
   @UseGuards(AuthGuard)
   @ApiCreatedResponse({ type: IngredientDTO })
   async createIngredient(@Body() body: IngredientDTO): Promise<IngredientDTO> {
-    if (body) {
-      return await this.ingredientService.create(body);
-    }
-    throw new BadRequestException();
+    return await this.ingredientService.create(body);
   }
   @Get('/')
   @UseGuards(AuthGuard)
@@ -45,9 +42,9 @@ export class IngredientController {
   @ApiCreatedResponse({ type: IngredientDTO })
   async updateIngredient(
     @Param('id') id: number,
-    @Body() body: IngredientDTO,
+    @Body() body: Partial<IngredientDTO>,
   ): Promise<IngredientDTO> {
-    if (body && id) {
+    if (id) {
       return await this.ingredientService.update(body, Number(id));
     }
     throw new BadRequestException('Invalid params');

@@ -1,8 +1,11 @@
 import { $Enums } from '@prisma/client';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsEmpty, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { IngredientDTO } from './ingredient.dto';
 import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
 export class ProductDTO {
+  @IsEmpty()
+  @IsNumber()
+  id?: number;
   @IsNotEmpty()
   @IsString()
   @ApiProperty()
@@ -32,7 +35,7 @@ export class ProductDTO {
   @IsNotEmpty()
   @IsNumber()
   @ApiProperty({ type: [Number] })
-  ingredientIds: [number];
+  ingredientIds: number[];
 }
 export class ResponseProductDTO {
   @ApiResponseProperty()

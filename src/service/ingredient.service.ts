@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { Prisma } from '@prisma/client';
 import { IngredientDTO } from 'src/dto/ingredient.dto';
@@ -17,21 +21,24 @@ export class IngredientService {
     return await this.prismaService.ingredient.findMany();
   }
   async get(id: number): Promise<IngredientDTO> {
-    try {
-      return await this.prismaService.ingredient.findUnique({ where: { id } });
-    } catch (error) {
-      throw new InternalServerErrorException(error);
+    const ingredientDB = await this.prismaService.ingredient.findUnique({
+      where: { id },
+    });
+    if (!ingredientDB) {
+      throw new NotFoundException('Ingredient not found');
     }
+    return ingredientDB;
   }
   async update(
     body: Prisma.IngredientUpdateInput,
     id: number,
   ): Promise<IngredientDTO> {
     try {
-      return await this.prismaService.ingredient.update({
+      const ingredientDB = await this.prismaService.ingredient.update({
         data: body,
         where: { id },
       });
+      return ingredientDB;
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
