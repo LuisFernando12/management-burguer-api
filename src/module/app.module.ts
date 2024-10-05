@@ -6,6 +6,7 @@ import { ResquestModule } from './request.module';
 import { JwtModule } from '@nestjs/jwt';
 import { EmployeeModule } from './employee.module';
 import { AuthModule } from './auth.module';
+import { MinioClientModule } from './minio.client.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AuthModule } from './auth.module';
     ResquestModule,
     EmployeeModule,
     AuthModule,
+    MinioClientModule,
   ],
 })
 export class AppModule {}

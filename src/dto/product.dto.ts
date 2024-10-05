@@ -10,6 +10,9 @@ export class ProductDTO {
   @IsString()
   @ApiProperty()
   name: string;
+  @IsString()
+  @ApiProperty()
+  image: string;
   @IsNotEmpty()
   @IsString()
   @ApiProperty()
