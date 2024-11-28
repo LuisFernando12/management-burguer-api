@@ -130,7 +130,7 @@ export class TokenService {
 
       await this.redisService.setex(
         `user:${client.sub}`,
-        600,
+        60,
         JSON.stringify(clientToken),
       );
 

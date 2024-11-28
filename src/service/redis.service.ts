@@ -3,7 +3,7 @@ import Redis from 'ioredis';
 @Injectable()
 export class RedisService extends Redis {
   constructor() {
-    super();
+    super(6379, process.env.REDIS_ENDPOINT || '127.0.0.1');
     this.on('connect', () => {
       console.log('Connected to Redis');
     });

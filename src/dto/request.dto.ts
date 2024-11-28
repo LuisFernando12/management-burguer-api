@@ -1,5 +1,5 @@
 import { $Enums } from '@prisma/client';
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 import { ProductDTO } from './product.dto';
 import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
 export class RequestDTO {
@@ -7,10 +7,11 @@ export class RequestDTO {
   @ApiProperty()
   clientId: number;
   @IsNumber()
+  @IsOptional()
   @ApiProperty()
   employeeId?: number;
   @IsNotEmpty()
-  @IsNumber()
+  @IsArray()
   @ApiProperty({ type: [Number] })
   productIds: [number];
 }
