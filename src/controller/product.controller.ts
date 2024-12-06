@@ -17,6 +17,8 @@ import {
 import { AuthGuard } from '../guard/auth.guard';
 import { ProductService } from '../service/product.service';
 
+type Category = 'FOOD' | 'DRINK' | 'DESSERT';
+
 @Controller('/product')
 @ApiTags('Product')
 export class ProductController {
@@ -32,6 +34,17 @@ export class ProductController {
   async findAll(): Promise<ResponseProductDTO[]> {
     return await this.productService.find();
   }
+
+  @Get('/category/:category')
+  @ApiCreatedResponse({ type: [ResponseProductDTO] })
+  async findByCategory(
+    @Param('category') category: Category,
+  ): Promise<ResponseProductDTO[]> {
+    return await this.productService.findByCategory(
+      category.toUpperCase() as Category,
+    );
+  }
+
   @Get('/:id')
   @ApiCreatedResponse({ type: ResponseProductDTO })
   async findOne(@Param('id') id: number): Promise<ResponseProductDTO> {

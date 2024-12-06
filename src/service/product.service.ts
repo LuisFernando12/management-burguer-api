@@ -7,6 +7,9 @@ import { ProductDTO, ResponseProductDTO } from 'src/dto/product.dto';
 type ProductCreateInput = Prisma.ProductCreateInput & {
   ingredientIds: number[];
 };
+
+type Category = 'FOOD' | 'DRINK' | 'DESSERT';
+
 @Injectable()
 export class ProductService {
   constructor(
@@ -58,6 +61,45 @@ export class ProductService {
         });
       }
       console.log('Cache');
+      return JSON.parse(productCache).map((product) => {
+        const { ingredients, ...productDB } = product;
+        return {
+          ...productDB,
+          ingredients: ingredients.map((ingredient) => ingredient.ingredient),
+        };
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  async findByCategory(category: Category): Promise<ResponseProductDTO[]> {
+    try {
+      const productCache = await this.redisService.get(`products[${category}]`);
+      if (!productCache) {
+        const productDB = await this.prismaService.product.findMany({
+          where: { category },
+          include: {
+            ingredients: {
+              include: {
+                ingredient: true,
+              },
+            },
+          },
+        });
+        await this.redisService.setex(
+          `products[${category}]`,
+          300,
+          JSON.stringify(productDB),
+        );
+        return productDB.map((product) => {
+          const { ingredients, ...productDB } = product;
+          return {
+            ...productDB,
+            ingredients: ingredients.map((ingredient) => ingredient.ingredient),
+          };
+        });
+      }
       return JSON.parse(productCache).map((product) => {
         const { ingredients, ...productDB } = product;
         return {
