@@ -70,10 +70,6 @@ describe('AuthController', () => {
       await authController.doLogin(inputLogin);
       expect(mockAuthService.login).toHaveBeenCalledTimes(1);
       expect(mockAuthService.login).toHaveBeenCalledWith(inputLogin);
-      // expect(result).toHaveProperty('access_token');
-      // expect(result).toHaveProperty('expireIn');
-      // expect(typeof result.access_token).toEqual('string');
-      // expect(typeof result.expireIn).toEqual('number');
     });
   });
 
